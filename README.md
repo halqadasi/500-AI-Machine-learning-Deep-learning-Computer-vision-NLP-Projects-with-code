@@ -6,6 +6,19 @@
 
 Follow me on LinkedIn : https://www.linkedin.com/in/ashishpatel2604/
 
+## Important Notice: NumPy 2.x Compatibility
+
+If you encounter errors like `RuntimeError: Numpy is not available` or `Failed to initialize NumPy: _ARRAY_API not found` when running projects from this list, this is due to NumPy 2.x compatibility issues with older PyTorch versions.
+
+**Quick Fix:**
+```bash
+pip install "numpy<2.0"
+```
+
+For detailed solutions and best practices, see our [**NumPy/PyTorch Compatibility Guide**](./NUMPY_PYTORCH_COMPATIBILITY_FIX.md).
+
+---
+
 ***This list is continuously updated.*** - You can take pull request and contribute. All Links are tested and working fine. Please ping if any link doesn't work.
 
 | Sr No | Name                                                         | Link                                                         |
