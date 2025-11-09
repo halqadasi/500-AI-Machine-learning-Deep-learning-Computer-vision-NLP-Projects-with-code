@@ -1,4 +1,4 @@
-from detection_algorithms_gpu import ssim_outliers, ssim_outliers_rgb, mse_outliers, histogram_outliers, read_video_grayscale, read_video_rgb
+from detection_algorithms_gpu import ssim_outliers, ssim_outliers_rgb, mse_outliers, histogram_outliers, optical_flow_outliers, read_video_grayscale, read_video_rgb
 from evaluation_metrics import load_ground_truth_from_csv, compare_algorithms
 from pathlib import Path
 from tqdm import tqdm
@@ -37,23 +37,24 @@ def test_best_algorithms_with_progress(videos_dir, csv_path, num_videos=None):
     action_name = Path(csv_path).stem
     print(f"\n{'='*80}")
     print(f"Testing {len(video_names)} videos from {action_name}")
-    print(f"Algorithms: SSIM-Gray, SSIM-RGB, MSE, Histogram")
+    print(f"Algorithms: SSIM-Gray, SSIM-RGB, MSE, Optical Flow")
     print(f"{'='*80}\n")
 
     # Collect all data
     all_y_true = []
     all_predictions = {
-        'SSIM-Gray (0.30)': [],
-        'SSIM-Gray (0.40)': [],
-        'SSIM-Gray (0.50)': [],
-        'SSIM-RGB (0.30)': [],
-        'SSIM-RGB (0.40)': [],
+        'SSIM-Gray (0.60)': [],
+        'SSIM-Gray (0.70)': [],
+        'SSIM-Gray (0.80)': [],
         'SSIM-RGB (0.50)': [],
-        'MSE (500)': [],
+        'SSIM-RGB (0.60)': [],
+        'SSIM-RGB (0.70)': [],
         'MSE (1000)': [],
+        'MSE (1500)': [],
         'MSE (2000)': [],
-        'Histogram (0.5)': [],
-        'Histogram (0.7)': [],
+        'Optical Flow (30)': [],
+        'Optical Flow (50)': [],
+        'Optical Flow (70)': [],
     }
 
     # Process videos with progress bar
@@ -70,23 +71,24 @@ def test_best_algorithms_with_progress(videos_dir, csv_path, num_videos=None):
         all_y_true.extend(y_true)
 
         # Run SSIM-Gray algorithms
-        all_predictions['SSIM-Gray (0.30)'].extend(ssim_outliers(gray_frames, thr=0.30))
-        all_predictions['SSIM-Gray (0.40)'].extend(ssim_outliers(gray_frames, thr=0.40))
-        all_predictions['SSIM-Gray (0.50)'].extend(ssim_outliers(gray_frames, thr=0.50))
+        all_predictions['SSIM-Gray (0.60)'].extend(ssim_outliers(gray_frames, thr=0.60))
+        all_predictions['SSIM-Gray (0.70)'].extend(ssim_outliers(gray_frames, thr=0.70))
+        all_predictions['SSIM-Gray (0.80)'].extend(ssim_outliers(gray_frames, thr=0.80))
 
         # Run SSIM-RGB algorithms
-        all_predictions['SSIM-RGB (0.30)'].extend(ssim_outliers_rgb(rgb_frames, thr=0.30))
-        all_predictions['SSIM-RGB (0.40)'].extend(ssim_outliers_rgb(rgb_frames, thr=0.40))
         all_predictions['SSIM-RGB (0.50)'].extend(ssim_outliers_rgb(rgb_frames, thr=0.50))
+        all_predictions['SSIM-RGB (0.60)'].extend(ssim_outliers_rgb(rgb_frames, thr=0.60))
+        all_predictions['SSIM-RGB (0.70)'].extend(ssim_outliers_rgb(rgb_frames, thr=0.70))
 
         # Run MSE algorithms
-        all_predictions['MSE (500)'].extend(mse_outliers(gray_frames, thr=500))
         all_predictions['MSE (1000)'].extend(mse_outliers(gray_frames, thr=1000))
+        all_predictions['MSE (1500)'].extend(mse_outliers(gray_frames, thr=1500))
         all_predictions['MSE (2000)'].extend(mse_outliers(gray_frames, thr=2000))
 
-        # Run Histogram algorithms
-        all_predictions['Histogram (0.5)'].extend(histogram_outliers(gray_frames, thr=0.5))
-        all_predictions['Histogram (0.7)'].extend(histogram_outliers(gray_frames, thr=0.7))
+        # Run Optical Flow algorithms
+        all_predictions['Optical Flow (30)'].extend(optical_flow_outliers(gray_frames, thr=30))
+        all_predictions['Optical Flow (50)'].extend(optical_flow_outliers(gray_frames, thr=50))
+        all_predictions['Optical Flow (70)'].extend(optical_flow_outliers(gray_frames, thr=70))
 
     print(f"\n{'='*80}")
     print(f"Total: {len(all_y_true)} frames, {sum(all_y_true)} outliers")
@@ -113,12 +115,12 @@ def test_best_algorithms_with_progress(videos_dir, csv_path, num_videos=None):
     return results
 
 if __name__ == "__main__":
-    videos_directory = r"C:\Users\hamza\Desktop\test\UCF101_videos_modified"
-    csv_file = r"C:\Users\hamza\Desktop\test\outlier_csvs\ApplyEyeMakeup.csv"
+    videos_directory = r"./UCF101_videos_modified"
+    csv_file = r"./outlier_csvs/ApplyEyeMakeup.csv"
 
     # Test on all 25 videos in ApplyEyeMakeup action
     # Change num_videos to test different amounts:
     # - num_videos=10  -> first 10 videos
     # - num_videos=25  -> all 25 videos in ApplyEyeMakeup
     # - num_videos=None -> all videos in the CSV
-    results = test_best_algorithms_with_progress(videos_directory, csv_file, num_videos=25)
+    results = test_best_algorithms_with_progress(videos_directory, csv_file, num_videos=50)
