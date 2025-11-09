@@ -1,4 +1,4 @@
-from detection_algorithms_gpu import ssim_outliers, ssim_outliers_rgb, mse_outliers, histogram_outliers, optical_flow_outliers, read_video_grayscale, read_video_rgb
+from detection_algorithms_gpu import ssim_outliers, ssim_outliers_rgb, mse_outliers, histogram_outliers, phash_outliers, read_video_grayscale, read_video_rgb
 from evaluation_metrics import load_ground_truth_from_csv, compare_algorithms
 from pathlib import Path
 from tqdm import tqdm
@@ -37,7 +37,7 @@ def test_best_algorithms_with_progress(videos_dir, csv_path, num_videos=None):
     action_name = Path(csv_path).stem
     print(f"\n{'='*80}")
     print(f"Testing {len(video_names)} videos from {action_name}")
-    print(f"Algorithms: SSIM-Gray, SSIM-RGB, MSE, Optical Flow")
+    print(f"Algorithms: SSIM-Gray, SSIM-RGB, MSE, pHash")
     print(f"{'='*80}\n")
 
     # Collect all data
@@ -52,9 +52,9 @@ def test_best_algorithms_with_progress(videos_dir, csv_path, num_videos=None):
         'MSE (1000)': [],
         'MSE (1500)': [],
         'MSE (2000)': [],
-        'Optical Flow (30)': [],
-        'Optical Flow (50)': [],
-        'Optical Flow (70)': [],
+        'pHash (15)': [],
+        'pHash (20)': [],
+        'pHash (25)': [],
     }
 
     # Process videos with progress bar
@@ -85,10 +85,15 @@ def test_best_algorithms_with_progress(videos_dir, csv_path, num_videos=None):
         all_predictions['MSE (1500)'].extend(mse_outliers(gray_frames, thr=1500))
         all_predictions['MSE (2000)'].extend(mse_outliers(gray_frames, thr=2000))
 
-        # Run Optical Flow algorithms
-        all_predictions['Optical Flow (30)'].extend(optical_flow_outliers(gray_frames, thr=30))
-        all_predictions['Optical Flow (50)'].extend(optical_flow_outliers(gray_frames, thr=50))
-        all_predictions['Optical Flow (70)'].extend(optical_flow_outliers(gray_frames, thr=70))
+        # Run pHash algorithms (note: phash returns keep_mask, so we invert it to get outlier_mask)
+        keep_mask_15 = phash_outliers(rgb_frames, dist_thr=15)
+        all_predictions['pHash (15)'].extend([not k for k in keep_mask_15])
+
+        keep_mask_20 = phash_outliers(rgb_frames, dist_thr=20)
+        all_predictions['pHash (20)'].extend([not k for k in keep_mask_20])
+
+        keep_mask_25 = phash_outliers(rgb_frames, dist_thr=25)
+        all_predictions['pHash (25)'].extend([not k for k in keep_mask_25])
 
     print(f"\n{'='*80}")
     print(f"Total: {len(all_y_true)} frames, {sum(all_y_true)} outliers")
